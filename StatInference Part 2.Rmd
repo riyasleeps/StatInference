@@ -1,0 +1,100 @@
+---
+title: "StatInference Part 2"
+output: pdf_document
+date: "2024-10-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+This analysis examines the ToothGrowth dataset to compare the effects of different supplements (Orange Juice and Ascorbic Acid) on guinea pig tooth growth at varying dosages (0.5, 1.0, and 2.0 mg/day). The study begins with exploratory data analysis (EDA) to visualize the relationship between supplement type, dosage, and tooth length using boxplots.
+The results indicate that orange juice significantly enhances tooth growth compared to ascorbic acid at dosages of 0.5 and 1.0 mg/day, while both supplements show similar effectiveness at a dosage of 2.0 mg/day. The analysis is grounded in the assumptions of normal distribution of tooth lengths and the absence of unmeasured factors affecting the results.
+
+
+```{r cars}
+### Load the ToothGrowth Data and Perform Exploratory Data Analysis
+# Load the necessary library and dataset
+library(datasets)
+data(ToothGrowth)
+
+# Display the structure and summary of the dataset
+str(ToothGrowth)  # Structure of the dataset
+head(ToothGrowth) # First few rows of the dataset
+summary(ToothGrowth) # Summary statistics
+
+# Load ggplot2 for visualization
+library(ggplot2)
+
+# Rename supplement levels for clarity
+t = ToothGrowth
+levels(t$supp) <- c("Orange Juice", "Ascorbic Acid")
+
+# Create boxplots to visualize tooth length by dosage and supplement type
+ggplot(t, aes(x=factor(dose), y=len)) + 
+  facet_grid(.~supp) +  # Separate plots for each supplement
+  geom_boxplot(aes(fill = supp), show_guide = FALSE) +  # Boxplot for tooth length
+  labs(title="Guinea Pig Tooth Length by Dosage for Each Supplement Type", 
+       x="Dose (mg/day)",
+       y="Tooth Length")  # Axis labels
+
+### Basic Summary of the Data
+# The boxplots indicate that increasing dosage correlates with increased tooth growth.
+# Notably, orange juice appears more effective than ascorbic acid for dosages of 0.5 to 1.0 mg/day, 
+# while both supplements show similar effectiveness at 2.0 mg/day.
+
+### Confidence Intervals & Hypothesis Tests
+
+#### Hypothesis #1
+# Hypothesis: Orange juice and ascorbic acid provide similar tooth growth across the dataset.
+hypoth1 <- t.test(len ~ supp, data = t)
+hypoth1$conf.int  # Confidence interval
+hypoth1$p.value   # P-value
+
+# Interpretation
+# The confidence interval includes 0, and the p-value exceeds 0.05. 
+# Thus, we cannot reject the null hypothesis.
+
+#### Hypothesis #2
+# Hypothesis: For a dosage of 0.5 mg/day, both supplements deliver similar tooth growth.
+hypoth2 <- t.test(len ~ supp, data = subset(t, dose == 0.5))
+hypoth2$conf.int  # Confidence interval
+hypoth2$p.value   # P-value
+
+# Interpretation
+# The confidence interval does not include 0, and the p-value is below 0.05. 
+# We can reject the null hypothesis, supporting the claim that orange juice provides 
+# greater tooth growth at this dosage.
+
+#### Hypothesis #3
+# Hypothesis: For a dosage of 1 mg/day, both supplements deliver similar tooth growth.
+hypoth3 <- t.test(len ~ supp, data = subset(t, dose == 1))
+hypoth3$conf.int  # Confidence interval
+hypoth3$p.value   # P-value
+
+# Interpretation
+# The confidence interval does not include 0, and the p-value is less than 0.05. 
+# We can reject the null hypothesis, indicating that orange juice leads to 
+# greater tooth growth at this dosage as well.
+
+#### Hypothesis #4
+# Hypothesis: For a dosage of 2 mg/day, both supplements deliver similar tooth growth.
+hypoth4 <- t.test(len ~ supp, data = subset(t, dose == 2))
+hypoth4$conf.int  # Confidence interval
+hypoth4$p.value   # P-value
+
+# Interpretation
+# The confidence interval includes 0, and the p-value is greater than 0.05. 
+# Thus, we cannot reject the null hypothesis.
+
+### Conclusions & Assumptions
+# Orange juice promotes more tooth growth than ascorbic acid for dosages 0.5 and 1.0 mg/day. 
+# However, for a dosage of 2.0 mg/day, both supplements are equally effective. 
+# Therefore, we cannot conclude that orange juice is more effective than ascorbic acid for the entire dataset.
+
+# Assumptions:
+# - Normal distribution of tooth lengths
+# - No other unmeasured factors affecting tooth length
+```
+
